@@ -1,0 +1,70 @@
+[gd_scene load_steps=13 format=3 uid="uid://bo20hliown5he"]
+
+[ext_resource type="Script" path="res://scripts/player.gd" id="1_r04yj"]
+[ext_resource type="PackedScene" uid="uid://iplda2q06c3q" path="res://third_person_camera.tscn" id="2_dn3a3"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_n7rm6"]
+
+[sub_resource type="Gradient" id="Gradient_mrrmn"]
+offsets = PackedFloat32Array(0, 0.314961, 0.464567, 1)
+colors = PackedColorArray(0, 0, 0, 1, 0.366373, 0.221261, 0.0316087, 1, 0.244094, 0.147414, 0.0210591, 1, 1, 0.603922, 0.0862745, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_qs84k"]
+gradient = SubResource("Gradient_mrrmn")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h3qy6"]
+albedo_texture = SubResource("GradientTexture2D_qs84k")
+
+[sub_resource type="SphereMesh" id="SphereMesh_grh42"]
+material = SubResource("StandardMaterial3D_h3qy6")
+
+[sub_resource type="Curve" id="Curve_xjia3"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.993506, 0.418182), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_05d5q"]
+curve = SubResource("Curve_xjia3")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_eidcu"]
+emission_shape = 6
+emission_ring_axis = Vector3(0, 1, 0)
+emission_ring_height = 0.1
+emission_ring_radius = 0.6
+emission_ring_inner_radius = 0.1
+flatness = 0.9
+gravity = Vector3(0, 0, 0)
+scale_curve = SubResource("CurveTexture_05d5q")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4l85q"]
+albedo_color = Color(0.552941, 0.305882, 0.129412, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_ix0au"]
+material = SubResource("StandardMaterial3D_4l85q")
+radius = 0.07
+height = 0.14
+
+[node name="Player" type="RigidBody3D" groups=["Player"]]
+gravity_scale = 2.0
+script = ExtResource("1_r04yj")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_n7rm6")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D"]
+mesh = SubResource("SphereMesh_grh42")
+
+[node name="Pivot" type="Node3D" parent="."]
+top_level = true
+
+[node name="CloudParticles" type="GPUParticles3D" parent="Pivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+amount = 40
+randomness = 1.0
+process_material = SubResource("ParticleProcessMaterial_eidcu")
+draw_pass_1 = SubResource("SphereMesh_ix0au")
+
+[node name="RayCast3D" type="RayCast3D" parent="Pivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.136363, 0)
+collide_with_areas = true
+
+[node name="ThirdPersonCamera" parent="Pivot" instance=ExtResource("2_dn3a3")]
